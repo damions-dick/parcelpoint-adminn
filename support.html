@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ParcelPoint Admin - Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-white p-4 shadow flex justify-between items-center">
+    <h1 class="text-xl font-bold text-blue-700">ParcelPoint Admin</h1>
+    <div class="space-x-4">
+      <a href="index.html" class="hover:text-blue-500">Dashboard</a>
+      <a href="create.html" class="hover:text-blue-500">Create Parcel</a>
+      <a href="support.html" class="text-blue-700 font-medium">Customer Support</a>
+    </div>
+  </nav>
+
+  <main class="p-6 max-w-5xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">🧑‍💬 Customer Messages</h2>
+
+    <div id="messagesContainer" class="bg-white shadow rounded p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+      <!-- Messages will appear here -->
+    </div>
+
+    <form id="messageForm" class="mt-6 space-y-4 bg-white p-4 rounded shadow max-w-3xl mx-auto">
+      <h3 class="font-semibold text-lg">Add New Customer Message</h3>
+      <input id="userEmail" type="email" required placeholder="User Email" class="w-full p-2 border rounded" />
+      <textarea id="userMessage" required placeholder="User Message" rows="3" class="w-full p-2 border rounded"></textarea>
+      <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800 transition">Add Message</button>
+    </form>
+  </main>
+
+<script>
+  const messagesKey = 'customerMessages';
+
+  // Load and render messages from localStorage
+  function loadMessages() {
+    const messages = JSON.parse(localStorage.getItem(messagesKey)) || [];
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+
+    if(messages.length === 0) {
+      container.innerHTML = '<p class="text-gray-500">No customer messages yet.</p>';
+      return;
+    }
+
+    messages.forEach((msg, i) => {
+      const div = document.createElement('div');
+      div.className = 'border-b pb-4';
+
+      div.innerHTML = `
+        <p><strong>User:</strong> ${msg.email}</p>
+        <p class="mb-2 italic">“${msg.message}”</p>
+        <textarea data-index="${i}" placeholder="Type your reply..." class="w-full border rounded p-2 mb-2 reply-textarea"></textarea>
+        <button data-index="${i}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 reply-btn">Send Reply</button>
+        <div class="mt-2 text-sm text-green-600 reply-status" style="display:none;">Reply sent!</div>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+
+  // Save replies in localStorage (simple version, just mark reply sent)
+  function sendReply(index, replyText, button, statusDiv) {
+    if(replyText.trim() === '') {
+      alert('Reply cannot be empty.');
+      return;
+    }
+
+    // Here you could extend to actually store replies or send to backend
+    // For now just show confirmation
+
+    statusDiv.style.display = 'block';
+    button.disabled = true;
+
+    setTimeout(() => {
+      statusDiv.style.display = 'none';
+      button.disabled = false;
+      const textarea = button.previousElementSibling;
+      textarea.value = '';
+    }, 3000);
+  }
+
+  // Handle reply button clicks
+  document.addEventListener('click', e => {
+    if(e.target.classList.contains('reply-btn')) {
+      const index = e.target.getAttribute('data-index');
+      const textarea = e.target.previousElementSibling;
+      const replyText = textarea.value;
+      const statusDiv = e.target.nextElementSibling;
+      sendReply(index, replyText, e.target, statusDiv);
+    }
+  });
+
+  // Handle adding new messages
+  document.getElementById('messageForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const email = document.getElementById('userEmail').value.trim();
+    const message = document.getElementById('userMessage').value.trim();
+
+    if(!email || !message) {
+      alert('Please fill in both fields.');
+      return;
+    }
+
+    const messages = JSON.parse(localStorage.getItem(messagesKey)) || [];
+
+    messages.push({ email, message });
+
+    localStorage.setItem(messagesKey, JSON.stringify(messages));
+
+    // Reset form and reload messages
+    e.target.reset();
+    loadMessages();
+  });
+
+  // Initial load
+  loadMessages();
+</script>
+
+</body>
+</html>
