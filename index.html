@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ParcelPoint Admin - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-white p-4 shadow flex justify-between items-center">
+    <h1 class="text-xl font-bold text-blue-700">ParcelPoint Admin</h1>
+    <div class="space-x-4">
+      <a href="index.html" class="text-blue-700 font-medium">Dashboard</a>
+      <a href="create.html" class="hover:text-blue-500">Create Parcel</a>
+      <a href="support.html" class="hover:text-blue-500">Customer Support</a>
+    </div>
+  </nav>
+
+  <main class="p-6 max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">📦 Parcel Management</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div id="totalParcels" class="bg-blue-700 text-white p-6 rounded shadow">
+        <p>Total Parcels</p>
+        <h3 class="text-3xl font-bold">0</h3>
+      </div>
+      <div id="inTransit" class="bg-yellow-500 text-white p-6 rounded shadow">
+        <p>In Transit</p>
+        <h3 class="text-3xl font-bold">0</h3>
+      </div>
+      <div id="delivered" class="bg-green-600 text-white p-6 rounded shadow">
+        <p>Delivered</p>
+        <h3 class="text-3xl font-bold">0</h3>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded shadow overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="text-left p-3">Tracking #</th>
+            <th class="text-left p-3">Status</th>
+            <th class="text-left p-3">From</th>
+            <th class="text-left p-3">To</th>
+            <th class="text-left p-3">Location</th>
+            <th class="text-left p-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="parcelTableBody">
+          <!-- Parcels will load here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+<script>
+  // Load parcels from localStorage and display them
+  function loadParcels() {
+    const parcels = JSON.parse(localStorage.getItem('parcels')) || [];
+    const tbody = document.getElementById('parcelTableBody');
+    tbody.innerHTML = '';
+
+    let total = parcels.length;
+    let inTransitCount = parcels.filter(p => p.status === 'In Transit').length;
+    let deliveredCount = parcels.filter(p => p.status === 'Delivered').length;
+
+    document.getElementById('totalParcels').querySelector('h3').textContent = total;
+    document.getElementById('inTransit').querySelector('h3').textContent = inTransitCount;
+    document.getElementById('delivered').querySelector('h3').textContent = deliveredCount;
+
+    parcels.forEach((parcel, index) => {
+      const tr = document.createElement('tr');
+      tr.classList.add('hover:bg-gray-50');
+
+      const statusColor = parcel.status === 'In Transit' ? 'bg-yellow-400' :
+                          parcel.status === 'Delivered' ? 'bg-green-500' :
+                          parcel.status === 'On Hold' ? 'bg-gray-500' : 'bg-gray-300';
+
+      tr.innerHTML = `
+        <td class="p-3">${parcel.trackingNumber}</td>
+        <td class="p-3"><span class="text-white px-2 py-1 rounded ${statusColor}">${parcel.status}</span></td>
+        <td class="p-3">${parcel.from}</td>
+        <td class="p-3">${parcel.to}</td>
+        <td class="p-3">${parcel.location || 'Unknown'}</td>
+        <td class="p-3 space-x-2">
+          <button class="px-3 py
